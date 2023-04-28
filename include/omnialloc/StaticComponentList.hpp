@@ -7,25 +7,34 @@
 
 namespace omni {
 template <typename T>
-struct StaticComponentList : public BaseComponentList {
+class StaticComponentList : public BaseComponentList {
+ public:
   StaticComponentList() {
     components = (T*)malloc(sizeof(T) * MaxListSize);
     memset(freeComponents, 0xFF, sizeof(freeComponents));
   }
 
   ~StaticComponentList() {
-    for (size_t i = 0; i < MaxListSize; i++) {
-      if (((freeComponents[i / 64] >> (i % 64)) & 1) == 0) {
-        components[i].~T();
+    for (size_t i = 0; i < MaxListSize / 64; i++) {
+      if (~freeComponents[i] > 0) {
+        for (size_t j = 0; j < 64; j++) {
+          if (((freeComponents[i] >> j) & 1) == 0) {
+            components[i * 64 + j].~T();
+          }
+        }
       }
     }
     free(components);
   }
 
   ssize_t FindFreeComponent() {
-    for (size_t i = 0; i < MaxListSize; i++) {
-      if (((freeComponents[i / 64] >> (i % 64)) & 1) > 0) {
-        return i;
+    for (size_t i = 0; i < MaxListSize / 64; i++) {
+      if ((freeComponents[i] & 0xFFFFFFFFFFFF) > 0) {
+        for (size_t j = 0; j < 64; j++) {
+          if (((freeComponents[i] >> j) & 1) > 0) {
+            return i * 64 + j;
+          }
+        }
       }
     }
     return MaxListSize;
