@@ -1,7 +1,9 @@
 #pragma once
 
+#include <omnialloc/omnialloc.hpp>
+
 namespace omni {
-struct BaseComponentList {
+struct OMNIALLOC_EXPORT BaseComponentList {
   virtual ~BaseComponentList() {}
 
   virtual void* Allocate() = 0;

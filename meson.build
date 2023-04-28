@@ -7,6 +7,7 @@ omni = library(
   sources : [
     'src/ComponentPool.cpp'],
   include_directories : ['include'],
+  cpp_args : ['-DOMNIALLOC_LIBRARY_BUILD'],
   install : true)
 
 omni_dep = declare_dependency(

@@ -64,7 +64,7 @@ class StaticComponentList : public BaseComponentList {
   void Deallocate(void* component) override {
     size_t componentIndex =
         ((size_t)component - (size_t)components) / sizeof(T);
-    freeComponents[componentIndex / 64] |= 1 << (componentIndex % 64);
+    freeComponents[componentIndex / 64] |= (uint64_t)1 << (componentIndex % 64);
 
     ((T*)component)->~T();
   }

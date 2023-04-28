@@ -3,13 +3,15 @@
 #include <cstdint>
 #include <memory>
 #include <omnialloc/BaseComponentList.hpp>
+#include <omnialloc/omnialloc.hpp>
 #include <string>
 #include <unordered_map>
 
 #define COMPONENT_ID(T) typeid(T).hash_code()
 
 namespace omni {
-class ComponentPool {
+
+class OMNIALLOC_EXPORT ComponentPool {
  public:
   void Register(size_t id, const std::string& name,
                 std::shared_ptr<BaseComponentList> list);

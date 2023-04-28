@@ -1,5 +1,3 @@
-#include "include/omnialloc/ComponentPool.hpp"
-
 #include <omnialloc/ComponentPool.hpp>
 
 namespace omni {
