@@ -1,21 +1,31 @@
 #pragma once
 
+#include <cassert>
 #include <cstddef>
 #include <cstdlib>
 #include <iterator>
+#include <limits>
 #include <omnialloc/BaseComponentList.hpp>
+#include <stdexcept>
+#include <vector>
 
 namespace omni {
 template <typename T>
 class StaticComponentList : public BaseComponentList {
  public:
-  StaticComponentList() {
-    components = (T*)malloc(sizeof(T) * MaxListSize);
-    memset(freeComponents, 0xFF, sizeof(freeComponents));
+  StaticComponentList(size_t maxSize = 64)
+      : maxSize(maxSize),
+        freeComponents(maxSize / 64, std::numeric_limits<uint64_t>::max()) {
+    if (maxSize % 64 > 0) {
+      throw std::runtime_error(
+          "Component list sizes must be a multiple of 64.");
+    }
+
+    components = (T*)malloc(sizeof(T) * maxSize);
   }
 
   ~StaticComponentList() {
-    for (size_t i = 0; i < MaxListSize / 64; i++) {
+    for (size_t i = 0; i < maxSize / 64; i++) {
       if (~freeComponents[i] > 0) {
         for (size_t j = 0; j < 64; j++) {
           if (((freeComponents[i] >> j) & 1) == 0) {
@@ -27,9 +37,9 @@ class StaticComponentList : public BaseComponentList {
     free(components);
   }
 
-  ssize_t FindFreeComponent() {
-    for (size_t i = 0; i < MaxListSize / 64; i++) {
-      if ((freeComponents[i] & 0xFFFFFFFFFFFF) > 0) {
+  size_t FindFreeComponent() {
+    for (size_t i = 0; i < maxSize / 64; i++) {
+      if (freeComponents[i] > 0) {
         for (size_t j = 0; j < 64; j++) {
           if (((freeComponents[i] >> j) & 1) > 0) {
             return i * 64 + j;
@@ -37,12 +47,12 @@ class StaticComponentList : public BaseComponentList {
         }
       }
     }
-    return MaxListSize;
+    return maxSize;
   }
 
   void* Allocate() override {
     auto freeComponent = FindFreeComponent();
-    if (freeComponent == MaxListSize) {
+    if (freeComponent == maxSize) {
       return nullptr;
     }
 
@@ -59,10 +69,9 @@ class StaticComponentList : public BaseComponentList {
     ((T*)component)->~T();
   }
 
-  static constexpr size_t MaxListSize = 256;
-
  private:
   T* components;
-  uint64_t freeComponents[MaxListSize / (sizeof(uint64_t) * 8)];
+  size_t maxSize;
+  std::vector<uint64_t> freeComponents;
 };
 }  // namespace omni
