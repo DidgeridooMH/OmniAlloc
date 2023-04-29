@@ -69,6 +69,22 @@ class StaticComponentList : public BaseComponentList {
     ((T*)component)->~T();
   }
 
+  void Apply(void (*callback)(void*)) override {
+    auto iterator = GetIterator();
+    void* current = iterator.GetNext(nullptr);
+    while (current != nullptr) {
+      callback(current);
+      current = iterator.GetNext(current);
+    }
+  }
+
+  StaticComponentIterator GetIterator() override {
+    return StaticComponentIterator{.components = components,
+                                   .freeComponents = freeComponents.data(),
+                                   .elementSize = sizeof(T),
+                                   .maxSize = maxSize};
+  }
+
  private:
   T* components;
   size_t maxSize;

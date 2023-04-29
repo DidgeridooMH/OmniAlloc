@@ -25,4 +25,8 @@ void ComponentPool::Deallocate(const std::string& name, void* component) {
 void ComponentPool::Deallocate(size_t id, void* component) {
   idsToLists[id]->Deallocate(component);
 }
+
+std::shared_ptr<BaseComponentList> ComponentPool::GetAll(size_t id) {
+  return idsToLists[id];
+}
 }  // namespace omni

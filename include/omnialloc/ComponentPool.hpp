@@ -24,6 +24,8 @@ class OMNIALLOC_EXPORT ComponentPool {
   void Deallocate(const std::string& name, void* component);
   void Deallocate(size_t id, void* component);
 
+  std::shared_ptr<BaseComponentList> GetAll(size_t id);
+
  private:
   std::unordered_map<std::string, size_t> namesToIds;
   std::unordered_map<size_t, std::shared_ptr<BaseComponentList>> idsToLists;

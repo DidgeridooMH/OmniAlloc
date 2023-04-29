@@ -5,7 +5,8 @@ project('omnialloc', 'cpp',
 omni = library(
   'omnialloc',
   sources : [
-    'src/ComponentPool.cpp'],
+    'src/ComponentPool.cpp',
+    'src/StaticComponentIterator.cpp'],
   include_directories : ['include'],
   cpp_args : ['-DOMNIALLOC_LIBRARY_BUILD'],
   install : true)
